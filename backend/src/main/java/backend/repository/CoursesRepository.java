@@ -1,4 +1,12 @@
 package backend.repository;
 
-public interface CoursesRepository {
+import backend.model.courses.CoursesModel;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CoursesRepository extends JpaRepository <CoursesModel,Long>{
+
+
+
+
+
 }
