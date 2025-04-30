@@ -5,6 +5,7 @@ import backend.model.courses.CoursesModel;
 import backend.repository.CoursesRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = "*") // Temporarily allowing all origins for debugging
 @RequestMapping("/course")
 public class CoursesController {
 
@@ -115,34 +116,32 @@ public class CoursesController {
         }).orElseThrow(() -> new CoursesNotFoundException(id));
     }
 
-    //delete part
+    // DELETE course method
     @DeleteMapping("/course/{id}")
-    public String deleteCourse(@PathVariable Long id) {
-        // Check if course exists
-        CoursesModel courseItem = coursesRepository.findById(id)
-                .orElseThrow(() -> new CoursesNotFoundException(id));
+    public ResponseEntity<String> deleteCourse(@PathVariable Long id) {
+        try {
+            // Check if course exists
+            CoursesModel courseItem = coursesRepository.findById(id)
+                    .orElseThrow(() -> new CoursesNotFoundException(id));
 
-        // Delete image if exists
-        String courseImage = courseItem.getCourseImage();
-        if (courseImage != null && !courseImage.isEmpty()) {
-            File imageFile = new File("uploads" + File.separator + courseImage);
-            if (imageFile.exists()) {
-                if (imageFile.delete()) {
+            // Delete image if exists
+            String courseImage = courseItem.getCourseImage();
+            if (courseImage != null && !courseImage.isEmpty()) {
+                File imageFile = new File("uploads" + File.separator + courseImage);
+                if (imageFile.exists() && imageFile.delete()) {
                     System.out.println("Image deleted successfully");
                 } else {
-                    System.out.println("Failed to delete image");
+                    System.out.println("Failed to delete image or image not found");
                 }
-            } else {
-                System.out.println("Image file not found");
             }
+
+            // Delete course from repository
+            coursesRepository.deleteById(id);
+
+            return ResponseEntity.ok("Course with ID " + id + " and its image (if existed) were deleted.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error deleting course: " + e.getMessage());
         }
-
-        // Delete course from repository
-        coursesRepository.deleteById(id);
-
-        return "Course with ID " + id + " and its image (if existed) were deleted.";
     }
-
-    
 }
-

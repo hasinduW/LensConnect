@@ -26,16 +26,13 @@ function DisplayCourse() {
     window.location.href = `/updateCourse/${id}`;
   };
 
-  if (loading) return <div>Loading courses...</div>;
-  if (error) return <div>{error}</div>;
-  //delete
   const deleteCourse = async (id) => {
     const confirmationMessage = window.confirm("Are you sure you want to delete this course?");
   
     if (confirmationMessage) {
       try {
-        const response = await axios.delete(`http://localhost:8080/course/${id}`);
-        
+        const response = await axios.delete(`http://localhost:8080/course/course/${id}`);
+  
         if (response.status === 200) {
           loadCourses();  // Reload course data after deletion
           alert("Course deleted successfully");
@@ -44,11 +41,21 @@ function DisplayCourse() {
         }
       } catch (error) {
         console.error("Delete error:", error);
-        alert("Error deleting course");
+  
+        if (error.response) {
+          alert(`Error deleting course: ${error.response.data || error.response.statusText}`);
+        } else if (error.request) {
+          alert("No response received from the server.");
+        } else {
+          alert("Error with request setup: " + error.message);
+        }
       }
     }
   };
-  
+
+  if (loading) return <div>Loading courses...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div>
       <h1>All Courses</h1>
@@ -80,7 +87,6 @@ function DisplayCourse() {
               <td>
                 <button onClick={() => handleUpdate(course.id)}>Update</button>
                 <button onClick={() => deleteCourse(course.id)}>Delete</button>
-
               </td>
             </tr>
           ))}
