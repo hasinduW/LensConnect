@@ -14,6 +14,40 @@ const Quiz = ({ courseId, userId }) => {
     const [error, setError] = useState(null);
     
     useEffect(() => {
+        setLoading(true);
+        
+        // Mock questions data
+        const mockQuestions = [
+            {
+                id: 1,
+                text: "What is the correct aperture for portrait photography?",
+                options: [
+                    { id: 1, text: "f/1.4" },
+                    { id: 2, text: "f/8" },
+                    { id: 3, text: "f/16" }
+                ],
+                correctAnswer: 1
+            },
+            {
+                id: 2,
+                text: "Which ISO is best for low light conditions?",
+                options: [
+                    { id: 4, text: "ISO 100" },
+                    { id: 5, text: "ISO 400" },
+                    { id: 6, text: "ISO 3200" }
+                ],
+                correctAnswer: 6
+            }
+        ];
+        
+        // Simulate API call with timeout
+        setTimeout(() => {
+            setQuestions(mockQuestions);
+            setLoading(false);
+        }, 1000); // Simulate network delay
+
+        // Original API call (commented out for now)
+        /*
         const fetchQuestions = async () => {
             try {
                 const response = await axios.get(`http://localhost:8080/api/quizzes/course/${courseId}`);
@@ -25,8 +59,8 @@ const Quiz = ({ courseId, userId }) => {
                 setLoading(false);
             }
         };
-        
         fetchQuestions();
+        */
     }, [courseId]);
     
     const handleAnswerSelect = (questionId, answerId) => {
@@ -57,12 +91,23 @@ const Quiz = ({ courseId, userId }) => {
     
     const updateProgress = async (passed, calculatedScore) => {
         try {
+            // For demo purposes, we'll just log this instead of making an actual API call
+            console.log('Progress would be updated:', {
+                userId,
+                courseId,
+                status: passed ? 'COMPLETED' : 'IN_PROGRESS',
+                quizScore: calculatedScore
+            });
+            
+            /*
+            // Original API call (commented out for now)
             await axios.put(`http://localhost:8080/api/progress`, {
                 userId,
                 courseId,
                 status: passed ? 'COMPLETED' : 'IN_PROGRESS',
                 quizScore: calculatedScore
             });
+            */
         } catch (err) {
             console.error("Error updating progress:", err);
             setError("Failed to save your progress. Please try again.");
