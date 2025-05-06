@@ -27,6 +27,7 @@ const UpdateNavigate = (id)=>{
     <div className="feed-container">
      {posts.map((post, index) => (
       <div className="post-card" key={index}>
+        
         {/* Profile section */}
         <div className="post-header">
           <div className="profile-section">

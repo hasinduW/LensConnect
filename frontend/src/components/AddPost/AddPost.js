@@ -31,14 +31,15 @@ function AddPost() {
     let imageName = "";
 
     try {
-      const response = await axios.post(`http://localhost:8080/posts/postImg`, formData, {
+      const response = await axios.post(`http://localhost:8080/posts/postImg`,  formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
       });
       imageName = response.data;
     } catch (error) {
-      alert("Error uploading image");
+      
+      alert("Error Uploading image");
       return;
     }
 
@@ -60,7 +61,8 @@ function AddPost() {
         <div className="form-sub-container">
           <form id="postForm" onSubmit={(e) => onsubmit(e)}>
             <label htmlFor="postId">Post ID:</label><br />
-            <input type="text" id="postId" name="postId" required onChange={(e) => onInputChange(e)} value={postId} /><br />
+            <input type="text" id="postId" name="postId" 
+            required onChange={(e) => onInputChange(e)} value={postId} /><br />
             
             <label htmlFor="postImage">Post Image:</label><br />
             <input
@@ -101,7 +103,7 @@ function AddPost() {
             >
               <option value="" disabled>Select</option>
               <option value="travel">WildLife</option>
-              <option value="food">Food</option>
+              <option value="landscape">Landscape</option>
               <option value="adventure">Adventure</option>
               <option value="lifestyle">Lifestyle</option>
               
