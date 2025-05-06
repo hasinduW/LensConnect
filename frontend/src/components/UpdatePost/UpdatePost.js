@@ -24,7 +24,7 @@ function UpdatePost() {
                     postImage: null
                 });
             }catch (err){
-                console.error('error fetch data : ', err);
+                console.error('error fetching data : ', err);
             }   
         };
         fetchPostData();
@@ -113,9 +113,10 @@ function UpdatePost() {
             >
               <option value="" disabled>Select</option>
               <option value="travel">WildLife</option>
-              <option value="food">Food</option>
+              <option value="landscape">Landscape</option>
               <option value="adventure">Adventure</option>
               <option value="lifestyle">Lifestyle</option>
+              
               
             </select><br /><br />
             
