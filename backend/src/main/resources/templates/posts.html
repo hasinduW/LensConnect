@@ -19,14 +19,14 @@
   <div th:each="post : ${posts}" style="margin-bottom:2em;">
     <p th:text="${post.content}"></p>
 
-    <!-- LikeModel button -->
+    <!-- Like model button -->
     <span class="likeModel-btn"
           th:id="'btn-' + ${post.id}"
           th:attr="data-post-id=${post.id}">♥</span>
     <span th:id="'count-' + ${post.id}"
           th:text="${likeCounts[post.id]}">0</span>
 
-    <!-- Comments section -->
+    <!-- Comment Section-->
     <div>
       <h4>Comments</h4>
       <ul th:id="'comments-' + ${post.id}" class="comments"></ul>
