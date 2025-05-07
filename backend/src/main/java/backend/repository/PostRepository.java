@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PostRepository extends JpaRepository<PostModel, Long> {
-    // you can add custom queries here if needed
+    // Add custom queries if needed
 }
