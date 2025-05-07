@@ -1,29 +1,44 @@
 package backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class PostModel {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // From Tharushi/Like&Comment (optional)
+    private String content;
+
+    // From main branch
     private String postId;
     private String postImage;
     private String postTitle;
     private String postDescription;
     private String postCategory;
 
-
-    public PostModel(){
+    // No-arg constructor
+    public PostModel() {
     }
 
+    // Convenience constructor (from Like & Comment)
+    public PostModel(String content) {
+        this.content = content;
+    }
 
+    // Full constructor (main branch)
+    public PostModel(Long id, String postId, String postImage, String postTitle, String postDescription, String postCategory) {
+        this.id = id;
+        this.postId = postId;
+        this.postImage = postImage;
+        this.postTitle = postTitle;
+        this.postDescription = postDescription;
+        this.postCategory = postCategory;
+    }
 
-    //getters and setters
-
-
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -72,12 +87,11 @@ public class PostModel {
         this.postCategory = postCategory;
     }
 
-    public PostModel(Long id, String postId, String postImage, String postTitle, String postDescription, String postCategory) {
-        this.id = id;
-        this.postId = postId;
-        this.postImage = postImage;
-        this.postTitle = postTitle;
-        this.postDescription = postDescription;
-        this.postCategory = postCategory;
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 }
