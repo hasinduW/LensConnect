@@ -1,8 +1,6 @@
 package backend.repository;
 
-package com.example.photolearn.repository;
-
-import com.example.photolearn.model.Quiz;
+import backend.model.Quiz;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

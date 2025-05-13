@@ -15,12 +15,12 @@ function App() {
       <Route path="/addcourse" element={<Addcourse />} />
       <Route path="/allcourses" element={<DisplayCourse />} />
       <Route path="/updateCourse/:id" element={<UpdateCourse />} />
-      <Route path="/quiz" element={<QuizPage />} />
-      <Route path="/progressTrackingPage" element={<ProgressTrackingPage />} />
-      {/* <Route path="/course/:courseId/quiz/:quizId" element={<QuizPage />} />
-        <Route path="/course/:courseId/results" element={<ProgressTrackingPage />} />
-      </Routes> */}
+      <Route path="/course/:courseId/quiz" element={<QuizPage />} />
+      <Route path="/users/:userId/progress" element={<ProgressTrackingPage />} />
+      <Route path="/users/:userId/progress/:courseId" element={<ProgressTrackingPage />} />
+      <Route path="/course/:courseId/results" element={<ProgressTrackingPage />} />
     </Routes>
+    
   );
 }
 

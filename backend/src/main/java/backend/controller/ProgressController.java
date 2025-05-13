@@ -1,7 +1,7 @@
 package backend.controller;
 
-import com.example.photolearn.model.UserProgress;
-import com.example.photolearn.service.ProgressService;
+import backend.model.UserProgress;
+import backend.service.ProgressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
