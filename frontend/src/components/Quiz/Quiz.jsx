@@ -1,165 +1,143 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import QuizQuestion from './QuizQuestion';
-import QuizResults from './QuizResults';
-import './styles.css';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const Quiz = ({ courseId, userId }) => {
-    const [questions, setQuestions] = useState([]);
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-    const [score, setScore] = useState(0);
-    const [quizCompleted, setQuizCompleted] = useState(false);
-    const [userAnswers, setUserAnswers] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    
-    useEffect(() => {
-        setLoading(true);
-        
-        // Mock questions data
-        const mockQuestions = [
-            {
-                id: 1,
-                text: "What is the correct aperture for portrait photography?",
-                options: [
-                    { id: 1, text: "f/1.4" },
-                    { id: 2, text: "f/8" },
-                    { id: 3, text: "f/16" }
-                ],
-                correctAnswer: 1
-            },
-            {
-                id: 2,
-                text: "Which ISO is best for low light conditions?",
-                options: [
-                    { id: 4, text: "ISO 100" },
-                    { id: 5, text: "ISO 400" },
-                    { id: 6, text: "ISO 3200" }
-                ],
-                correctAnswer: 6
-            }
-        ];
-        
-        // Simulate API call with timeout
-        setTimeout(() => {
-            setQuestions(mockQuestions);
-            setLoading(false);
-        }, 1000); // Simulate network delay
+const QuizPage = () => {
+  const { courseId } = useParams();
+  const navigate = useNavigate();
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [quizData, setQuizData] = useState(null);
+  const [userAnswers, setUserAnswers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-        // Original API call (commented out for now)
-        /*
-        const fetchQuestions = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8080/api/quizzes/course/${courseId}`);
-                setQuestions(response.data);
-                setLoading(false);
-            } catch (err) {
-                console.error("Error fetching questions:", err);
-                setError(err.message);
-                setLoading(false);
-            }
-        };
-        fetchQuestions();
-        */
-    }, [courseId]);
-    
-    const handleAnswerSelect = (questionId, answerId) => {
-        setUserAnswers(prev => ({ ...prev, [questionId]: answerId }));
-    };
-    
-    const handleNextQuestion = () => {
-        if (currentQuestionIndex < questions.length - 1) {
-            setCurrentQuestionIndex(currentQuestionIndex + 1);
-        } else {
-            calculateScore();
-            setQuizCompleted(true);
+  useEffect(() => {
+    const fetchQuizData = async () => {
+      try {
+        const response = await fetch(`/api/courses/${courseId}/quiz`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch quiz data');
         }
+        const data = await response.json();
+        setQuizData(data);
+        setUserAnswers(new Array(data.questions.length).fill(null));
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
-    const calculateScore = () => {
-        let correctAnswers = 0;
-        questions.forEach(question => {
-            const selectedAnswer = userAnswers[question.id];
-            if (selectedAnswer && question.correctAnswer === selectedAnswer) {
-                correctAnswers++;
-            }
-        });
-        const calculatedScore = Math.round((correctAnswers / questions.length) * 100);
-        setScore(calculatedScore);
-        updateProgress(correctAnswers >= questions.length * 0.7, calculatedScore);
-    };
-    
-    const updateProgress = async (passed, calculatedScore) => {
-        try {
-            // For demo purposes, we'll just log this instead of making an actual API call
-            console.log('Progress would be updated:', {
-                userId,
-                courseId,
-                status: passed ? 'COMPLETED' : 'IN_PROGRESS',
-                quizScore: calculatedScore
-            });
-            
-            /*
-            // Original API call (commented out for now)
-            await axios.put(`http://localhost:8080/api/progress`, {
-                userId,
-                courseId,
-                status: passed ? 'COMPLETED' : 'IN_PROGRESS',
-                quizScore: calculatedScore
-            });
-            */
-        } catch (err) {
-            console.error("Error updating progress:", err);
-            setError("Failed to save your progress. Please try again.");
-        }
-    };
-    
-    if (loading) {
-        return (
-            <div className="loading-container">
-                <p>Loading quiz questions...</p>
-                <div className="spinner"></div>
-            </div>
-        );
+
+    fetchQuizData();
+  }, [courseId]);
+
+  const handleAnswerSelect = (answerIndex) => {
+    setSelectedAnswer(answerIndex);
+    const updatedAnswers = [...userAnswers];
+    updatedAnswers[currentQuestionIndex] = answerIndex;
+    setUserAnswers(updatedAnswers);
+  };
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < quizData.questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(userAnswers[currentQuestionIndex + 1]);
     }
-    
-    if (error) {
-        return (
-            <div className="error-container">
-                <p>Error: {error}</p>
-                <button onClick={() => window.location.reload()}>Retry</button>
-            </div>
-        );
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setSelectedAnswer(userAnswers[currentQuestionIndex - 1]);
     }
-    
-    if (questions.length === 0) {
-        return (
-            <div className="no-questions">
-                <p>No questions available for this quiz.</p>
-            </div>
-        );
+  };
+
+  const handleSubmitQuiz = async () => {
+    try {
+      const response = await fetch('/api/progress', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          courseId,
+          answers: userAnswers,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit quiz');
+      }
+
+      navigate(`/progress/${courseId}/result`);
+    } catch (err) {
+      setError(err.message);
     }
-    
-    return (
-        <div className="quiz-container">
-            {!quizCompleted ? (
-                <QuizQuestion
-                    question={questions[currentQuestionIndex]}
-                    selectedAnswer={userAnswers[questions[currentQuestionIndex].id]}
-                    onAnswerSelect={handleAnswerSelect}
-                    onNext={handleNextQuestion}
-                    isLastQuestion={currentQuestionIndex === questions.length - 1}
-                />
-            ) : (
-                <QuizResults 
-                    score={score}
-                    totalQuestions={questions.length}
-                    passingScore={70}
-                    courseId={courseId}
-                />
-            )}
+  };
+
+  if (isLoading) return <div>Loading quiz...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!quizData) return <div>No quiz data available</div>;
+
+  const currentQuestion = quizData.questions[currentQuestionIndex];
+
+  return (
+    <div className="quiz-container">
+      <h1>{quizData.courseTitle} - Quiz</h1>
+      <div className="progress-indicator">
+        Question {currentQuestionIndex + 1}/{quizData.questions.length}
+      </div>
+      
+      <div className="question-card">
+        <h3>Question {currentQuestionIndex + 1}</h3>
+        <p>{currentQuestion.questionText}</p>
+        
+        <div className="options-list">
+          {currentQuestion.options.map((option, index) => (
+            <div 
+              key={index} 
+              className={`option ${selectedAnswer === index ? 'selected' : ''}`}
+              onClick={() => handleAnswerSelect(index)}
+            >
+              <input 
+                type="radio" 
+                name="quiz-option" 
+                checked={selectedAnswer === index}
+                onChange={() => handleAnswerSelect(index)}
+              />
+              {option}
+            </div>
+          ))}
         </div>
-    );
+      </div>
+      
+      <div className="navigation-buttons">
+        <button 
+          onClick={handlePreviousQuestion}
+          disabled={currentQuestionIndex === 0}
+        >
+          ← Previous
+        </button>
+        
+        {currentQuestionIndex < quizData.questions.length - 1 ? (
+          <button 
+            onClick={handleNextQuestion}
+            disabled={selectedAnswer === null}
+          >
+            Next →
+          </button>
+        ) : (
+          <button 
+            onClick={handleSubmitQuiz}
+            disabled={selectedAnswer === null}
+            className="submit-button"
+          >
+            Submit Quiz
+          </button>
+        )}
+      </div>
+    </div>
+  );
 };
 
-export default Quiz;
+export default QuizPage;
