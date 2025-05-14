@@ -1,14 +1,13 @@
 package backend;
 
 import backend.model.UserModel;
+import backend.model.PostModel;
+import backend.repository.PostRepository;
+import backend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import backend.model.PostModel;
-import backend.repository.PostRepository;
-import backend.repository.UserRepository;
 
 @SpringBootApplication
 public class BackendApplication {
@@ -31,5 +30,4 @@ public class BackendApplication {
 			}
 		};
 	}
-
 }
