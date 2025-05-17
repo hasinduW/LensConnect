@@ -1,32 +1,29 @@
 package backend.model;
 
 import jakarta.persistence.*;
+//import lombok.Data;
+
+import javax.net.ssl.SSLSession;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_progress")
 public class UserProgress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "course_id", nullable = false)
-    private Long courseId;
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
 
-    @Column(name = "score")
-    private Double score;
-
-    @Column(name = "completed", nullable = false)
-    private Boolean completed = false;
-
-    @Column(name = "last_updated", nullable = false)
+    private boolean isCompleted;
+    private LocalDateTime completionDate;
     private LocalDateTime lastUpdated;
 
-    @Column(name = "answers_json", columnDefinition = "TEXT")
-    private String answersJson;
+    @OneToOne(mappedBy = "progress", cascade = CascadeType.ALL)
+    private QuizResult quizResult;
 
     // Getters and Setters
     public Long getId() {
@@ -45,28 +42,28 @@ public class UserProgress {
         this.userId = userId;
     }
 
-    public Long getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Long courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
-    public Double getScore() {
-        return score;
+    public boolean getIsCompleted() {
+        return isCompleted;
     }
 
-    public void setScore(Double score) {
-        this.score = score;
+    public void setIsCompleted(boolean completed) {
+        isCompleted = completed;
     }
 
-    public Boolean getCompleted() {
-        return completed;
+    public LocalDateTime getCompletionDate() {
+        return completionDate;
     }
 
-    public void setCompleted(Boolean completed) {
-        this.completed = completed;
+    public void setCompletionDate(LocalDateTime completionDate) {
+        this.completionDate = completionDate;
     }
 
     public LocalDateTime getLastUpdated() {
@@ -77,11 +74,15 @@ public class UserProgress {
         this.lastUpdated = lastUpdated;
     }
 
-    public String getAnswersJson() {
-        return answersJson;
+    public QuizResult getQuizResult() {
+        return quizResult;
     }
 
-    public void setAnswersJson(String answersJson) {
-        this.answersJson = answersJson;
+    public void setQuizResult(QuizResult quizResult) {
+        this.quizResult = quizResult;
+    }
+
+    public Long getCourseId() {
+        return course != null ? course.getId() : null;
     }
 }

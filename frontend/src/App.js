@@ -1,25 +1,33 @@
 import './App.css';
 import React from 'react';
-import { Route, Routes } from "react-router-dom";
+import { Router,Route, Routes } from "react-router-dom";
 import Home from "./components/Home/Home";
 import Addcourse from "./components/Addcourse/Addcourse";
 import DisplayCourse from "./components/DisplayCourse/DisplayCourse";
 import UpdateCourse from "./components/UpdateCourse/UpdateCourse";
-import QuizPage from './components/Quiz/Quiz';
-import ProgressTrackingPage from './components/Quiz/ProgressTracking';
+import Navbar from './components/Navbar';
+import QuizPage from './components/Quiz/QuizPage';
+import ProgressTrackingPage from './components/Quiz/ProgressTrackingPage';
 
 function App() {
+
+    //const [userId, setUserId] = useState(1); // Default user ID for demo
+
   return (
+    <Router>
+    <div className="App">
+        <Navbar />
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/addcourse" element={<Addcourse />} />
       <Route path="/allcourses" element={<DisplayCourse />} />
       <Route path="/updateCourse/:id" element={<UpdateCourse />} />
-      <Route path="/course/:courseId/quiz" element={<QuizPage />} />
-      <Route path="/users/:userId/progress" element={<ProgressTrackingPage />} />
-      <Route path="/users/:userId/progress/:courseId" element={<ProgressTrackingPage />} />
-      <Route path="/course/:courseId/results" element={<ProgressTrackingPage />} />
+      <Route path="/quiz/:courseId" element={<QuizPage userId={userId} />} />
+      <Route path="/progress" element={<ProgressTrackingPage userId={userId} />} />
+      {/*<Route path="/progress/:courseId" element={<ProgressTrackingPage userId={userId} />} />*/}
     </Routes>
+    </div>
+  </Router>
     
   );
 }
