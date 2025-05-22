@@ -13,7 +13,7 @@ public class Course {
     private Long id;
 
     private String name;
-    private String description;
+    //private String description;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<QuizQuestion> quizQuestions;

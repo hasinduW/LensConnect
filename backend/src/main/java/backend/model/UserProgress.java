@@ -3,7 +3,6 @@ package backend.model;
 import jakarta.persistence.*;
 //import lombok.Data;
 
-import javax.net.ssl.SSLSession;
 import java.time.LocalDateTime;
 
 @Entity
