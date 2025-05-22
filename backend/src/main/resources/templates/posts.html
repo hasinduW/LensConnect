@@ -1,0 +1,141 @@
+<!-- src/main/resources/templates/posts.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>All Posts</title>
+  <style>
+    .likeModel-btn            { cursor: pointer; font-size: 1.5rem; color: #767575; }
+    .liked               { color: rgb(247, 3, 3); }
+    .comment-btn         { margin-top: 0.5em; }
+    .comments            { list-style: none; padding-left: 0; }
+    .comments li         { border-bottom: 1px solid #ddd; padding: 0.5em 0; }
+    .comment-actions button { margin-left: 0.5em; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <h1>Posts</h1>
+
+  <div th:each="post : ${posts}" style="margin-bottom:2em;">
+    <p th:text="${post.content}"></p>
+
+    <!-- Like model button -->
+    <span class="likeModel-btn"
+          th:id="'btn-' + ${post.id}"
+          th:attr="data-post-id=${post.id}">♥</span>
+    <span th:id="'count-' + ${post.id}"
+          th:text="${likeCounts[post.id]}">0</span>
+
+    <!-- Comment Section-->
+    <div>
+      <h4>Comments</h4>
+      <ul th:id="'comments-' + ${post.id}" class="comments"></ul>
+      <textarea th:id="'input-' + ${post.id}" rows="2" cols="50"></textarea><br/>
+      <button class="comment-btn" th:attr="data-post-id=${post.id}">Add Comment</button>
+    </div>
+
+    <hr/>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUserId = 1;  // demo user
+
+      // Generic function to attach edit/delete handlers to a comment <li>
+      function attachCommentHandlers(li) {
+        const commentId = li.dataset.commentId;
+        // Edit button
+        const editBtn = li.querySelector('.edit-comment-btn');
+        if (editBtn) {
+          editBtn.addEventListener('click', async () => {
+            const currentText = li.querySelector('.comment-text').innerText;
+            const newText = prompt('Edit comment text:', currentText);
+            if (!newText) return;
+            const res = await fetch(`/comments/${commentId}?userId=${currentUserId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'text/plain' },
+              body: newText
+            });
+            const updated = await res.json();
+            li.querySelector('.comment-text').innerText = updated.text;
+          });
+        }
+        // Delete button
+        const delBtn = li.querySelector('.delete-comment-btn');
+        if (delBtn) {
+          delBtn.addEventListener('click', async () => {
+            await fetch(`/comments/${commentId}?userId=${currentUserId}`, { method: 'DELETE' });
+            li.remove();
+          });
+        }
+      }
+
+      // Setup likeModel buttons
+      document.querySelectorAll('.likeModel-btn').forEach(btn => {
+        const postId = btn.getAttribute('data-post-id');
+        btn.addEventListener('click', async () => {
+          await fetch(`/posts/${postId}/likes?userId=${currentUserId}`, { method: 'POST' });
+          const res  = await fetch(`/posts/${postId}/likes`);
+          const json = await res.json();
+          document.querySelector(`#count-${postId}`).innerText = json.count;
+          btn.classList.add('liked');
+        });
+      });
+
+      // Setup comment sections
+      document.querySelectorAll('.comment-btn').forEach(btn => {
+        const postId = btn.getAttribute('data-post-id');
+        const list   = document.getElementById(`comments-${postId}`);
+        const input  = document.getElementById(`input-${postId}`);
+
+        // Load existing comments
+        fetch(`/posts/${postId}/comments`)
+          .then(r => r.json())
+          .then(comments => {
+            list.innerHTML = '';
+            comments.forEach(c => {
+              const li = document.createElement('li');
+              li.id = `comment-${c.id}`;
+              li.dataset.commentId = c.id;
+              // Build inner HTML with edit/delete only for own comments
+              let html = `<span class="comment-text">[User ${c.userId}] ${c.text}</span>`;
+              if (c.userId === currentUserId) {
+                html += `<span class="comment-actions">` +
+                        `<button class="edit-comment-btn" data-comment-id="${c.id}">Edit</button>` +
+                        `<button class="delete-comment-btn" data-comment-id="${c.id}">Delete</button>` +
+                        `</span>`;
+              }
+              li.innerHTML = html;
+              list.append(li);
+              attachCommentHandlers(li);
+            });
+          });
+
+        // Add comment
+        btn.addEventListener('click', async () => {
+          const text = input.value.trim();
+          if (!text) return;
+          const res = await fetch(`/posts/${postId}/comments?userId=${currentUserId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: text
+          });
+          const c = await res.json();
+          const li = document.createElement('li');
+          li.id = `comment-${c.id}`;
+          li.dataset.commentId = c.id;
+          let html = `<span class="comment-text">[You] ${c.text}</span>`;
+          html += `<span class="comment-actions">` +
+                  `<button class="edit-comment-btn" data-comment-id="${c.id}">Edit</button>` +
+                  `<button class="delete-comment-btn" data-comment-id="${c.id}">Delete</button>` +
+                  `</span>`;
+          li.innerHTML = html;
+          list.append(li);
+          attachCommentHandlers(li);
+          input.value = '';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
