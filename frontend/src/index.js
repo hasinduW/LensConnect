@@ -8,15 +8,14 @@ import App from './App';
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 
 
-import {BrowserRouter} from "react-router-dom";
+//import {BrowserRouter} from "react-router-dom";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <BrowserRouter>
+  
   <React.StrictMode>
     <App />
   </React.StrictMode>
-  </BrowserRouter>
+  
 );
-
 
